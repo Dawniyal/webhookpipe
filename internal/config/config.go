@@ -54,19 +54,19 @@ func LoadConfig(path string) (*Config, error) {
 		logger.Fatal().Err(err).Msg("could not load initial env variables")
 	}
 
-	mainConfig := &Config{}
+	cfg := &Config{}
 
-	err = k.Unmarshal("", mainConfig)
+	err = k.Unmarshal("", cfg)
 	if err != nil {
 		logger.Fatal().Err(err).Msg("could not unmarshal main config")
 	}
 
 	validate := validator.New()
 
-	err = validate.Struct(mainConfig)
+	err = validate.Struct(cfg)
 	if err != nil {
 		logger.Fatal().Err(err).Msg("config validation failed")
 	}
 
-	return mainConfig, nil
+	return cfg, nil
 }
