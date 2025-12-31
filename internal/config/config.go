@@ -3,6 +3,7 @@ package config
 import (
 	"os"
 	"strings"
+	"time"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/joho/godotenv"
@@ -25,16 +26,16 @@ type ServerConfig struct {
 }
 
 type DatabaseConfig struct {
-	Host            string `koanf:"host" validate:"required"`
-	Port            int    `koanf:"port" validate:"required"`
-	User            string `koanf:"user" validate:"required"`
-	Password        string `koanf:"password"`
-	Name            string `koanf:"name" validate:"required"`
-	SSLMode         string `koanf:"ssl_mode" validate:"required"`
-	MaxOpenConns    int    `koanf:"max_open_conns" validate:"required"`
-	MaxIdleConns    int    `koanf:"max_idle_conns" validate:"required"`
-	ConnMaxLifetime int    `koanf:"conn_max_lifetime" validate:"required"`
-	ConnMaxIdleTime int    `koanf:"conn_max_idle_time" validate:"required"`
+	Host            string        `koanf:"host" validate:"required"`
+	Port            int           `koanf:"port" validate:"required"`
+	User            string        `koanf:"user" validate:"required"`
+	Password        string        `koanf:"password"`
+	Name            string        `koanf:"name" validate:"required"`
+	SSLMode         string        `koanf:"ssl_mode" validate:"required"`
+	MaxOpenConns    int           `koanf:"max_open_conns" validate:"required"`
+	MaxIdleConns    int           `koanf:"max_idle_conns" validate:"required"`
+	ConnMaxLifetime time.Duration `koanf:"conn_max_lifetime" validate:"required"`
+	ConnMaxIdleTime time.Duration `koanf:"conn_max_idle_time" validate:"required"`
 }
 
 func LoadConfig(path string) (*Config, error) {
