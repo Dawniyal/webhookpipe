@@ -19,11 +19,11 @@ type Config struct {
 }
 
 type ServerConfig struct {
-	Port               string   `koanf:"port" validate:"required"`
-	ReadTimeout        int      `koanf:"read_timeout" validate:"required"`
-	WriteTimeout       int      `koanf:"write_timeout" validate:"required"`
-	IdleTimeout        int      `koanf:"idle_timeout" validate:"required"`
-	CORSAllowedOrigins []string `koanf:"cors_allowed_origins" validate:"required"`
+	Port               string        `koanf:"port" validate:"required"`
+	ReadTimeout        time.Duration `koanf:"read_timeout" validate:"required"`
+	WriteTimeout       time.Duration `koanf:"write_timeout" validate:"required"`
+	IdleTimeout        time.Duration `koanf:"idle_timeout" validate:"required"`
+	CORSAllowedOrigins []string      `koanf:"cors_allowed_origins" validate:"required"`
 }
 
 type DatabaseConfig struct {
