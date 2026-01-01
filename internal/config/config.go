@@ -13,8 +13,9 @@ import (
 )
 
 type Config struct {
-	Server   ServerConfig   `koanf:"server" validate:"required"`
-	Database DatabaseConfig `koanf:"database" validate:"required"`
+	Server        ServerConfig        `koanf:"server" validate:"required"`
+	Database      DatabaseConfig      `koanf:"database" validate:"required"`
+	Observability ObservabilityConfig `koanf:"observability" validate:"required"`
 }
 
 type ServerConfig struct {
@@ -36,6 +37,16 @@ type DatabaseConfig struct {
 	MaxIdleConns    int           `koanf:"max_idle_conns" validate:"required"`
 	ConnMaxLifetime time.Duration `koanf:"conn_max_lifetime" validate:"required"`
 	ConnMaxIdleTime time.Duration `koanf:"conn_max_idle_time" validate:"required"`
+}
+
+type ObservabilityConfig struct {
+	HealthChecks HealthChecksConfig `koanf:"health_checks" validate:"required"`
+}
+
+type HealthChecksConfig struct {
+	Enabled  bool          `koanf:"enabled" validate:"required"`
+	Interval time.Duration `koanf:"interval" validate:"required,min=1s"`
+	Timeout  time.Duration `koanf:"timeout" validate:"required,min=1s"`
 }
 
 func LoadConfig(path string) (*Config, error) {
