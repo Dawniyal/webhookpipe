@@ -40,7 +40,13 @@ type DatabaseConfig struct {
 }
 
 type ObservabilityConfig struct {
+	Logging      LoggingConfig      `koanf:"logging" validate:"required"`
 	HealthChecks HealthChecksConfig `koanf:"health_checks" validate:"required"`
+}
+
+type LoggingConfig struct {
+	Level  string `koanf:"level" validate:"required,oneof=debug info warn error"`
+	Format string `koanf:"format" validate:"required,oneof=json console"`
 }
 
 type HealthChecksConfig struct {
