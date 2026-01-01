@@ -12,10 +12,10 @@ import (
 	"github.com/rs/zerolog"
 )
 
-func NewLogger(cfg *config.Config) zerolog.Logger {
+func NewLogger(cfg *config.ObservabilityConfig) zerolog.Logger {
 	var logLevel zerolog.Level
 
-	switch cfg.Observability.Logging.Level {
+	switch cfg.Logging.Level {
 	case "debug":
 		logLevel = zerolog.DebugLevel
 	case "info":
@@ -32,7 +32,7 @@ func NewLogger(cfg *config.Config) zerolog.Logger {
 
 	var writer io.Writer
 
-	if cfg.Observability.Logging.Format == "json" {
+	if cfg.Logging.Format == "json" {
 		writer = os.Stdout
 	} else {
 		consoleWriter := zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: time.RFC3339}
