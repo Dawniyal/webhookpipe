@@ -9,13 +9,21 @@ import (
 	"time"
 
 	"github.com/Dawniyal/webhookpipe/internal/config"
+	loggerConfig "github.com/Dawniyal/webhookpipe/internal/logger"
+	pgxZero "github.com/jackc/pgx-zerolog"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/jackc/pgx/v5/tracelog"
 	"github.com/rs/zerolog"
 )
 
 const DatabasePingTimeout = 10
 
-func New(cfg *config.Config, logger *zerolog.Logger) (*pgxpool.Pool, error) {
+type Database struct {
+	Pool *pgxpool.Pool
+	Log  *zerolog.Logger
+}
+
+func New(cfg *config.Config, logger *zerolog.Logger) (*Database, error) {
 	hostPort := net.JoinHostPort(cfg.Database.Host, strconv.Itoa(cfg.Database.Port))
 
 	encodedPassword := url.QueryEscape(cfg.Database.Password)
@@ -38,6 +46,14 @@ func New(cfg *config.Config, logger *zerolog.Logger) (*pgxpool.Pool, error) {
 	pgxPoolConfig.MaxConnLifetime = cfg.Database.ConnMaxLifetime
 	pgxPoolConfig.MaxConnIdleTime = cfg.Database.ConnMaxIdleTime
 
+	globalLevel := logger.GetLevel()
+	pgxLogger := loggerConfig.NewPgxLogger(globalLevel)
+
+	pgxPoolConfig.ConnConfig.Tracer = &tracelog.TraceLog{
+		Logger:   pgxZero.NewLogger(pgxLogger),
+		LogLevel: tracelog.LogLevel(loggerConfig.GetPgxTraceLogLevel(globalLevel)),
+	}
+
 	pool, err := pgxpool.NewWithConfig(context.Background(), pgxPoolConfig)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create pgx pool: %w", err)
@@ -52,5 +68,10 @@ func New(cfg *config.Config, logger *zerolog.Logger) (*pgxpool.Pool, error) {
 
 	logger.Info().Msg("connected to the database")
 
-	return pool, nil
+	db := &Database{
+		Pool: pool,
+		Log:  logger,
+	}
+
+	return db, nil
 }
