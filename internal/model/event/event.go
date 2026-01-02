@@ -6,19 +6,19 @@ import (
 	"github.com/google/uuid"
 )
 
-type Event_Status string
+type EventStatus string
 
 const (
-	StatusReceived  Event_Status = "received"
-	StatusPending   Event_Status = "pending"
-	StatusDelivered Event_Status = "delivered"
-	StatusFailed    Event_Status = "failed"
+	StatusReceived  EventStatus = "received"
+	StatusPending   EventStatus = "pending"
+	StatusDelivered EventStatus = "delivered"
+	StatusFailed    EventStatus = "failed"
 )
 
 type Event struct {
 	ID         uuid.UUID      `json:"id" db:"id"`
 	EndpointID string         `json:"endpointId" db:"endpoint_id"`
 	Payload    map[string]any `json:"payload" db:"payload"`
-	Status     Event_Status   `json:"status" db:"status"`
+	Status     EventStatus    `json:"status" db:"status"`
 	CreatedAt  time.Time      `json:"createdAt" db:"created_at"`
 }

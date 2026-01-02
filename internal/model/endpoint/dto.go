@@ -4,58 +4,40 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
-// CRUD (Create, read, update and delete)
-
-// CREATE ---------------------------------------------------
+var validate = validator.New()
 
 type AddEndpointPayload struct {
 	ID        string `json:"id" validate:"required"`
-	TargetUrl string `json:"targetUrl" validate:"required, http_url"`
-	Active    bool   `json:"active" validate:"required"`
+	TargetURL string `json:"targetUrl" validate:"required,url"`
+	Active    bool   `json:"active"`
 }
 
 func (p *AddEndpointPayload) Validate() error {
-	validate := validator.New()
 	return validate.Struct(p)
 }
 
-// ----------------------------------------------------------
-
-// READ ---------------------------------------------------
-
-type GetEndpointbyIDPayload struct {
+type GetEndpointByIDPayload struct {
 	ID string `json:"id" validate:"required"`
 }
 
-func (p *GetEndpointbyIDPayload) Validate() error {
-	validate := validator.New()
+func (p *GetEndpointByIDPayload) Validate() error {
 	return validate.Struct(p)
 }
-
-// ----------------------------------------------------------
-
-// UPDATE ---------------------------------------------------
 
 type UpdateEndpointPayload struct {
 	ID        string `json:"id" validate:"required"`
-	TargetUrl string `json:"targetUrl" validate:"required, http_url"`
-	Active    bool   `json:"active" validate:"required"`
+	TargetURL string `json:"targetUrl" validate:"required,url"`
+	Active    bool   `json:"active"`
 }
 
 func (p *UpdateEndpointPayload) Validate() error {
-	validate := validator.New()
 	return validate.Struct(p)
 }
 
-// ----------------------------------------------------------
-
-// DELETE---------------------------------------------------
-
-type DeleteEndpointbyIDPayload struct {
+type DeleteEndpointByIDPayload struct {
 	ID string `json:"id" validate:"required"`
 }
 
-func (p *DeleteEndpointbyIDPayload) Validate() error {
-	validate := validator.New()
+func (p *DeleteEndpointByIDPayload) Validate() error {
 	return validate.Struct(p)
 }
