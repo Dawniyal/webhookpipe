@@ -1,7 +1,9 @@
 package repository
 
 import (
-	"github.com/Dawniyal/webhookpipe/internal/server"
+	"errors"
+
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type Repositories struct {
@@ -9,9 +11,11 @@ type Repositories struct {
 	Endpoints *EndpointsRepository
 }
 
-func NewRepositories(s *server.Server) *Repositories {
+func NewRepositories(db *pgxpool.Pool) *Repositories {
 	return &Repositories{
-		Events:    NewEventsRepository(s),
-		Endpoints: NewEndpointsRepository(s),
+		Events:    NewEventsRepository(db),
+		Endpoints: NewEndpointsRepository(db),
 	}
 }
+
+var ErrEndpointNotFound = errors.New("endpoint not found")
