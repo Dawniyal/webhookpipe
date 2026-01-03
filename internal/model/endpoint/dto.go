@@ -25,9 +25,9 @@ func (p *GetEndpointByIDPayload) Validate() error {
 }
 
 type UpdateEndpointPayload struct {
-	ID        string `json:"id" validate:"required"`
-	TargetURL string `json:"targetUrl" validate:"required,url"`
-	Active    bool   `json:"active"`
+	ID        string  `json:"id" validate:"required"`
+	TargetURL *string `json:"targetUrl" validate:"omitempty,url"`
+	Active    *bool   `json:"active"`
 }
 
 func (p *UpdateEndpointPayload) Validate() error {
