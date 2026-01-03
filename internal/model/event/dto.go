@@ -32,3 +32,23 @@ type GetEventByIDPayload struct {
 func (p *GetEventByIDPayload) Validate() error {
 	return validate.Struct(p)
 }
+
+type UpdateEventPayload struct {
+	ID         uuid.UUID       `json:"id" validate:"required,uuid"`
+	EndpointID *string         `json:"endpointId"`
+	Payload    *map[string]any `json:"payload"`
+	Status     *EventStatus    `json:"status" validate:"omitempty,oneof=received pending delivered failed"`
+	Active     bool            `json:"active"`
+}
+
+func (p *UpdateEventPayload) Validate() error {
+	return validate.Struct(p)
+}
+
+type DeleteEventPayload struct {
+	ID uuid.UUID `json:"id" validate:"required,uuid"`
+}
+
+func (p *DeleteEventPayload) Validate() error {
+	return validate.Struct(p)
+}
