@@ -1,8 +1,6 @@
 package repository
 
 import (
-	"errors"
-
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -17,5 +15,3 @@ func NewRepositories(db *pgxpool.Pool) *Repositories {
 		Endpoints: NewEndpointsRepository(db),
 	}
 }
-
-var ErrEndpointNotFound = errors.New("endpoint not found")

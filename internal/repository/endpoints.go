@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"errors"
+	"strings"
 
 	"github.com/Dawniyal/webhookpipe/internal/model/endpoint"
 	"github.com/jackc/pgx/v5"
@@ -21,7 +22,8 @@ func (r *EndpointsRepository) AddEndpoint(ctx context.Context, payload *endpoint
 	sql := `
 		INSERT INTO endpoint (id, target_url, active) 
 		VALUES (@id, @target_url, @active)
-		RETURNING id, target_url, active, created_at;
+		RETURNING id, target_url, active, created_at
+		LIMIT 1;
 	`
 	args := pgx.NamedArgs{
 		"id":         payload.ID,
@@ -45,7 +47,7 @@ func (r *EndpointsRepository) GetTargetURLByID(ctx context.Context, payload *end
 	err := r.db.QueryRow(ctx, sql, payload.ID).Scan(&url)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return "", ErrEndpointNotFound
+			return "", pgx.ErrNoRows
 		}
 		return "", err
 	}
@@ -54,23 +56,37 @@ func (r *EndpointsRepository) GetTargetURLByID(ctx context.Context, payload *end
 }
 
 func (r *EndpointsRepository) UpdateTargetURLEndpoint(ctx context.Context, payload *endpoint.UpdateEndpointPayload) (*endpoint.Endpoint, error) {
-	sql := `
-		UPDATE endpoint
-		SET target_url = @target_url, active = @active
-		WHERE id = @id
-		RETURNING id, target_url, active, created_at;
-	`
+	sql := `UPDATE endpoint SET `
+
 	args := pgx.NamedArgs{
-		"id":         payload.ID,
-		"target_url": payload.TargetURL,
-		"active":     payload.Active,
+		"id": payload.ID,
 	}
+
+	setClauses := []string{}
+
+	if payload.TargetURL != nil {
+		setClauses = append(setClauses, "target_url = @target_url")
+		args["target_url"] = payload.TargetURL
+	}
+
+	if payload.Active != nil {
+		setClauses = append(setClauses, "active = @active")
+		args["active"] = payload.Active
+	}
+
+	if len(setClauses) == 0 {
+		return nil, errors.New("bad request") // need to make a err package
+	}
+
+	sql += strings.Join(setClauses, ", ")
+
+	sql += ` WHERE id = @id RETURNING id, target_url, active, created_at`
 
 	rows, _ := r.db.Query(ctx, sql, args)
 	ep, err := pgx.CollectOneRow(rows, pgx.RowToStructByName[endpoint.Endpoint])
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, ErrEndpointNotFound
+			return nil, pgx.ErrNoRows
 		}
 		return nil, err
 	}
@@ -85,7 +101,7 @@ func (r *EndpointsRepository) DeleteEndpointSoft(ctx context.Context, payload *e
 		return err
 	}
 	if ct.RowsAffected() == 0 {
-		return ErrEndpointNotFound
+		return pgx.ErrNoRows
 	}
 	return nil
 }
@@ -97,7 +113,7 @@ func (r *EndpointsRepository) DeleteEndpointHard(ctx context.Context, payload *e
 		return err
 	}
 	if ct.RowsAffected() == 0 {
-		return ErrEndpointNotFound
+		return pgx.ErrNoRows
 	}
 	return nil
 }
