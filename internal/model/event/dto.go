@@ -38,7 +38,7 @@ type UpdateEventPayload struct {
 	EndpointID *string         `json:"endpointId"`
 	Payload    *map[string]any `json:"payload"`
 	Status     *EventStatus    `json:"status" validate:"omitempty,oneof=received pending delivered failed"`
-	Active     bool            `json:"active"`
+	Active     *bool           `json:"active"`
 }
 
 func (p *UpdateEventPayload) Validate() error {
