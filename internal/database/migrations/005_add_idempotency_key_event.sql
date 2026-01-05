@@ -1,0 +1,2 @@
+ALTER TABLE event 
+ADD COLUMN idempotency_key TEXT NOT NULL UNIQUE;
