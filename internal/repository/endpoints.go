@@ -40,22 +40,26 @@ func (r *EndpointsRepository) AddEndpoint(ctx context.Context, payload *endpoint
 	return &ep, nil
 }
 
-func (r *EndpointsRepository) GetTargetURLByID(ctx context.Context, payload *endpoint.GetEndpointByIDPayload) (string, error) {
+func (r *EndpointsRepository) GetEndpointByID(ctx context.Context, payload *endpoint.GetEndpointByIDPayload) (*endpoint.Endpoint, error) {
 	sql := `SELECT target_url FROM endpoint WHERE id = $1 AND active = TRUE LIMIT 1;`
 
-	var url string
-	err := r.db.QueryRow(ctx, sql, payload.ID).Scan(&url)
+	row, err := r.db.Query(ctx, sql, payload.ID)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return "", pgx.ErrNoRows
+			return nil, pgx.ErrNoRows
 		}
-		return "", err
+		return nil, err
 	}
 
-	return url, nil
+	ep, err := pgx.CollectExactlyOneRow(row, pgx.RowToStructByName[endpoint.Endpoint])
+	if err != nil {
+		return nil, err
+	}
+
+	return &ep, nil
 }
 
-func (r *EndpointsRepository) UpdateTargetURLEndpoint(ctx context.Context, payload *endpoint.UpdateEndpointPayload) (*endpoint.Endpoint, error) {
+func (r *EndpointsRepository) UpdateEndpoint(ctx context.Context, payload *endpoint.UpdateEndpointPayload) (*endpoint.Endpoint, error) {
 	sql := `UPDATE endpoint SET `
 
 	args := pgx.NamedArgs{

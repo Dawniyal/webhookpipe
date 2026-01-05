@@ -19,7 +19,7 @@ func NewEventsRepository(db *pgxpool.Pool) *EventsRepository {
 	return &EventsRepository{db: db}
 }
 
-func (r *EventsRepository) CreateEvent(ctx context.Context, e event.CreateEventPayload) (*event.Event, error) {
+func (r *EventsRepository) CreateEvent(ctx context.Context, e *event.CreateEventPayload) (*event.Event, error) {
 	ID, err := uuid.NewV7()
 	if err != nil {
 		return nil, err
@@ -49,8 +49,8 @@ func (r *EventsRepository) CreateEvent(ctx context.Context, e event.CreateEventP
 	return &res, nil
 }
 
-func (r *EventsRepository) GetEventByIDPayload(ctx context.Context, e event.GetEventByIDPayload) (*event.Event, error) {
-	sql := `SELECT id,endpoint_id,payload,status,active FROM endpoint WHERE id = $1 LIMIT 1;`
+func (r *EventsRepository) GetEventByIDPayload(ctx context.Context, e *event.GetEventByIDPayload) (*event.Event, error) {
+	sql := `SELECT id,endpoint_id,payload,status,active FROM event WHERE id = $1 LIMIT 1;`
 
 	rows, err := r.db.Query(ctx, sql, e.ID)
 	if err != nil {
@@ -66,7 +66,7 @@ func (r *EventsRepository) GetEventByIDPayload(ctx context.Context, e event.GetE
 	return &res, nil
 }
 
-func (r *EventsRepository) UpdateEvent(ctx context.Context, e event.UpdateEventPayload) (*event.Event, error) {
+func (r *EventsRepository) UpdateEvent(ctx context.Context, e *event.UpdateEventPayload) (*event.Event, error) {
 	sql := `UPDATE event SET `
 
 	args := pgx.NamedArgs{
@@ -113,6 +113,24 @@ func (r *EventsRepository) UpdateEvent(ctx context.Context, e event.UpdateEventP
 	}
 
 	return &ev, nil
+}
+
+func (r *EventsRepository) UpdateStatus(ctx context.Context, eventID uuid.UUID, status event.EventStatus) error {
+	sql := `UPDATE event SET status = @status WHERE id= @id`
+	args := pgx.NamedArgs{
+		"id":     eventID,
+		"status": status,
+	}
+
+	ct, err := r.db.Exec(ctx, sql, args)
+	if err != nil {
+		return err
+	}
+	if ct.RowsAffected() == 0 {
+		return errors.New("0 Row Affected")
+	}
+
+	return nil
 }
 
 func (r *EventsRepository) DeleteEventSoft(ctx context.Context, payload *event.DeleteEventPayload) error {
