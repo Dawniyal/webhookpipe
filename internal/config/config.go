@@ -15,6 +15,7 @@ import (
 type Config struct {
 	Server        ServerConfig        `koanf:"server" validate:"required"`
 	Database      DatabaseConfig      `koanf:"database" validate:"required"`
+	Redis         RedisConfig         `koanf:"redis" validate:"required"`
 	Observability ObservabilityConfig `koanf:"observability" validate:"required"`
 }
 
@@ -37,6 +38,11 @@ type DatabaseConfig struct {
 	MaxIdleConns    int           `koanf:"max_idle_conns" validate:"required"`
 	ConnMaxLifetime time.Duration `koanf:"conn_max_lifetime" validate:"required"`
 	ConnMaxIdleTime time.Duration `koanf:"conn_max_idle_time" validate:"required"`
+}
+
+type RedisConfig struct {
+	Address  string `koanf:"address" validate:"required"`
+	Password string `koanf:"password" validate:"required"`
 }
 
 type ObservabilityConfig struct {
